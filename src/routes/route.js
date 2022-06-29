@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const collegeController = require('../controller/collegeController');
 const interController = require('../controller/internController');
 
@@ -20,4 +21,5 @@ router.all('/*', (req, res) => {return res.status(404).send({status : false, mes
 
 
 
-module.exports = router
+
+module.exports = router;

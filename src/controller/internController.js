@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const collegeModel = require("../model/collegeModel");
 const internModel = require("../model/internModel");
 
 // <-----------------For String Validation------------------>
@@ -122,3 +121,4 @@ const createIntern = async (req, res) => {
 };
 
 module.exports = { createIntern };
+

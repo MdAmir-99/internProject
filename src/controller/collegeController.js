@@ -155,3 +155,5 @@ const getCollegeDetails = async (req, res) => {
 };
 
 module.exports = { createCollege, getCollegeDetails };
+
+
