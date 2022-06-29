@@ -10,7 +10,7 @@ router.post('/functionup/interns', interController.createIntern);
 
 router.get('/functionup/collegeDetails', collegeController.getCollegeDetails)
 
-
+router.all('/*', (req, res) => {return res.status(404).send({status : false, message:"Page Not Found !!"})})
 
 
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const collegeModel = require('../model/collegeModel');
+const internModel = require('../model/internModel');
 
 
 // <-----------------For String Validation------------------>
@@ -98,11 +99,26 @@ const getCollegeDetails = async (req, res) => {
         if(!validate(name)) return res.status(400).send({status : false, message : "college Name is required !!"});
         if(!nameRegex.test(name.trim())) return res.status(400).send({status : false, message:`College Name '${name}' is invalid !!`})
     
+        // <-------check CollegeName is Present in DB or not----------->
         const collegeName = await collegeModel.findOne({name})
 
         if(collegeName == null) return res.status(400).send({status:false, message:`No College Found with this name '${name}'`});
-        return res.send(collegeName)
-    
+        
+        // <----------Create Object to send in response---------->
+        const collegeDetaisObj = {};
+        collegeDetaisObj['name'] = collegeName.name;
+        collegeDetaisObj['fullName'] = collegeName.fullName;
+        collegeDetaisObj['logoLink'] = collegeName.logoLink;
+        // console.log(collegeDetaisObj)
+
+        // <----------Find All the Interns of the find CollegeName------------->
+
+        const internDetails = await internModel.find({collegeId : collegeName._id})
+        console.log(collegeName._id);
+        collegeDetaisObj['interns'] = internDetails;
+
+        return res.status(200).send({status : true, data : collegeDetaisObj})
+        
     
     }
     catch(err){
