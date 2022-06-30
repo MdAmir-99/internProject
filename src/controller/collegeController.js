@@ -1,48 +1,31 @@
 const mongoose = require("mongoose");
 const collegeModel = require("../model/collegeModel");
 const internModel = require("../model/internModel");
+const checkValidation = require("../validation/validation");
 
-// <-----------------For String Validation------------------>
-const validate = (value) => {
-  if (typeof value === null || typeof value === "undefined") return false;
-  if (typeof value === "string" && value.trim().length === 0) return false;
-  return true;
-};
-
-// <-------------------Url Regex------------------->
-const urlRegex =/(http[s]*:\/\/)([a-z\-_0-9\/.]+)\.([a-z.]{2,3})\/([a-z0-9\-_\/._~:?#\[\]@!$&'()*+,;=%]*)([A-Za-z0-9]+\.)(jpg|jpeg|png)/gm;
-const collageNameRegex = /[A-Za-z]/gm;
-const fullNameRegex = /[A-Za-z,& ]/gm;
-
-
-
-// <---------For Request Body Validation -------------->
-const isValidRequestBody = (value) => {
-  return Object.keys(value).length > 0;
-};
+const {validate,isValidRequestBody, clgName, clgFullName, clgLogoLink} = checkValidation;
 
 const createCollege = async (req, res) => {
   try {
     let data = req.body;
-    const { name, fullName, logoLink } = data;
+    const {fullName, logoLink } = data;
+    let name = data.name;
 
-    if (!isValidRequestBody(data)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Please Filled the Data !!!" });
-    }
+    if(!(name && fullName && logoLink)) 
+    return res.status(400).send({status:false, message:"Please Fill Mandatory Fields in valid Format !!"})
 
     // <---------Name Validation with regex and check empty name also------------->
     if (!validate(name)) {
       return res
         .status(400)
-        .send({ status: false, message: "Name is Required!!" });
+        .send({ status: false, message: `College Name (${name}) is in invalid format !!` });
     }
-    let validName = collageNameRegex.test(name.trim());
-    if (!validName) {
+    name = data.name.toLowerCase();
+
+    if (!clgName(name)) {
       return res
         .status(400)
-        .send({ status: false, message: "Please use only Alphabet fname!!" });
+        .send({ status: false, message: `College Name (${name}) is in invalid format !!` });
     }
 
     // <-------------Check College name is exist in DB or not--------------->
@@ -61,23 +44,22 @@ const createCollege = async (req, res) => {
     if (!validate(fullName)) {
       return res
         .status(400)
-        .send({ status: false, message: "Fullname is Required!!" });
+        .send({ status: false, message: `College FullName (${fullName}) is in invalid format !!` });
     }
-    let validFullNAme = fullNameRegex.test(fullName.trim());
-    if (!validFullNAme) {
+    // let validFullNAme = fullNameRegex.test(fullName.trim());
+    if (!clgFullName(fullName)) {
       return res
         .status(400)
-        .send({ status: false, message: "Please use only Alphabet !!" });
+        .send({ status: false, message: `College FullName (${fullName}) is in invalid format !!` });
     }
 
     // <---------Url Validation with regex and check empty name also------------->
     if (!validate(logoLink)) {
       return res
         .status(400)
-        .send({ status: false, message: "Image is Required !!" });
+        .send({ status: false, message: `Image Url (${logoLink}) is in invalid format !!` });
     }
-    let validUrl = urlRegex.test(logoLink.trim());
-    if (!validUrl) {
+    if (!clgLogoLink(logoLink)) {
       return res
         .status(400)
         .send({
@@ -105,7 +87,7 @@ const createCollege = async (req, res) => {
 const getCollegeDetails = async (req, res) => {
   try {
     const data = req.query;
-    const { name } = data;
+    let  name  = data.name;
     if (!isValidRequestBody(data))
       return res
         .status(400)
@@ -114,13 +96,16 @@ const getCollegeDetails = async (req, res) => {
     if (!validate(name))
       return res
         .status(400)
-        .send({ status: false, message: "college Name is required !!" });
-    if (!collageNameRegex.test(name.trim()))
+        .send({ status: false, message: `College Name (${name}) is in invalid format !!` });
+
+        name = name.toLowerCase()
+
+    if (!clgName(name))
       return res
         .status(400)
         .send({
           status: false,
-          message: `College Name '${name}' is invalid !!`,
+          message: `College Name '${name}' is in invalid !!`,
         });
 
     // <-------check CollegeName is Present in DB or not----------->
@@ -141,9 +126,8 @@ const getCollegeDetails = async (req, res) => {
     collegeDetaisObj["logoLink"] = collegeName.logoLink;
 
     // <----------Find All the Interns of the find CollegeName------------->
-    let error = {message : `No Intern Found With this College '${name}' !!`} // For No inter in college.
     const internDetails = await internModel.find({collegeId: collegeName._id});
-    if(internDetails.length == 0) collegeDetaisObj["interns"] = internDetails.push(error);
+    if(internDetails.length == 0) return res.status(400).send({status : false, message:`No Intern Found With This College (${name})`});
     collegeDetaisObj["interns"] = internDetails;
 
     return res.status(200).send({ status: true, data: collegeDetaisObj });

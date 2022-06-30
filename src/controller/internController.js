@@ -3,29 +3,28 @@ const internModel = require("../model/internModel");
 const collegeModel = require("../model/collegeModel");
 const validation = require("../validation/validation");
 
-const {validate, isValidObjectId, isFormat, isValidRequestBody} = validation
+const { validate, validateForNumber,isValidObjectId, internName, internMobile, internEmail } = validation;
 
 const createIntern = async (req, res) => {
   try {
     const data = req.body;
     const { name, email, mobile, collegeId } = data;
 
-    if (!isValidRequestBody(data))
-      return res
-        .status(400)
-        .send({ status: false, message: "Please Filled the Data !!" });
+    if (!(name && email && mobile && collegeId)) 
+    return res.status(400).send({status : false, message: "Please Fill Mandatory Fields in valid Format !!"})
+      
 
     // <----------Name Validation with regex and check empty || undefined name also------------>
     if (!validate(name))
       return res
         .status(400)
         .send({ status: false, message: "Name is Required !!" });
-    if (!isFormat(name))
+    if (!internName(name))
       return res
         .status(400)
         .send({
           status: false,
-          message: "Please Enter Name in Valid Format !!",
+          message: `This (${name}) is invalid!!`,
         });
 
     // <----------Email Validation with regex and check empty || undefined name also------------>
@@ -33,29 +32,29 @@ const createIntern = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, message: "Email is Required !!" });
-    if (!isFormat(email))
+    if (!internEmail(email))
       return res
         .status(400)
-        .send({ status: false, message: `This ${email} is invalid!!` });
+        .send({ status: false, message: `This (${email}) is invalid!!` });
 
     // <-------------Check Email is exist in DB or not--------------->
     const isEmailExist = await internModel.findOne({ email });
     if (isEmailExist != null)
       return res
         .status(400)
-        .send({ status: false, message: `${email} is already exist !!` });
+        .send({ status: false, message: `This (${email}) is already exist !!` });
 
     // <----------Mobile Validation with regex and check empty || undefined name also------------>
-    if (!validate(mobile))
+    if (!validateForNumber(mobile))
       return res
         .status(400)
         .send({ status: false, message: "Mobile Number is Required !!" });
-    if (!isFormat(mobile))
+    if (!internMobile(mobile))
       return res
         .status(400)
         .send({
           status: false,
-          message: `This Mobile Number '${mobile}' is Invalid !!`,
+          message: `This (${mobile}) Mobile Number is Invalid !!`,
         });
 
     // <-------------Check Mobile is exist in DB or not--------------->
@@ -66,7 +65,7 @@ const createIntern = async (req, res) => {
         .status(400)
         .send({
           status: false,
-          message: `This ${mobile} Number is already Exist !!`,
+          message: `This (${mobile}) Number is already Exist !!`,
         });
 
     // <-------------Check collegeId Valid or not-------------->
@@ -79,12 +78,12 @@ const createIntern = async (req, res) => {
         .status(400)
         .send({
           status: false,
-          message: `CollegeId '${collegeId}' is Invalid !!`,
+          message: `CollegeId (${collegeId}) is Invalid !!`,
         });
     // <------------Check College is exist in DB or not------------------>
     const college = await collegeModel.findById(collegeId)
     
-    if(college == null) return res.status(400).send({status : false, message : `No college Found with this id '${collegeId}'`})
+    if(college == null) return res.status(400).send({status : false, message : `No college Found with this id (${collegeId})`})
 
     // <-----------Inserted the data in an Object and Craete the Document------------->
     const internObj = {
@@ -98,7 +97,7 @@ const createIntern = async (req, res) => {
 
     return res.status(201).send({ status: true, data: internData });
   } catch (err) {
-    return res.status(500).send({ status: false, message: err.message });
+    return res.status(500).send({ status: false, message: err.message});
   }
 };
 
