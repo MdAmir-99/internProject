@@ -11,7 +11,7 @@ const validate = (value) => {
 
 // <-------------------Url Regex------------------->
 const urlRegex =/(http[s]*:\/\/)([a-z\-_0-9\/.]+)\.([a-z.]{2,3})\/([a-z0-9\-_\/._~:?#\[\]@!$&'()*+,;=%]*)([A-Za-z0-9]+\.)(jpg|jpeg|png)/gm;
-const nameRegex = /[A-Za-z]/gm;
+const collageNameRegex = /[A-Za-z]/gm;
 const fullNameRegex = /[A-Za-z,& ]/gm;
 
 
@@ -38,7 +38,7 @@ const createCollege = async (req, res) => {
         .status(400)
         .send({ status: false, message: "Name is Required!!" });
     }
-    let validName = nameRegex.test(name.trim());
+    let validName = collageNameRegex.test(name.trim());
     if (!validName) {
       return res
         .status(400)
@@ -115,7 +115,7 @@ const getCollegeDetails = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, message: "college Name is required !!" });
-    if (!nameRegex.test(name.trim()))
+    if (!collageNameRegex.test(name.trim()))
       return res
         .status(400)
         .send({

@@ -1,31 +1,9 @@
 const mongoose = require("mongoose");
 const internModel = require("../model/internModel");
 const collegeModel = require("../model/collegeModel");
+const validation = require("../validation/validation");
 
-// <-----------------For String Validation------------------>
-const validate = (value) => {
-  if (typeof value === null || typeof value === "undefined") return false;
-  if (typeof value === "string" && value.trim().length === 0) return false;
-  return true;
-};
-
-// <-----------For Object Id Validation----------->
-const isValidObjectId = (Id) => {
-  return mongoose.Types.ObjectId.isValid(Id);
-};
-
-// <-------------------Regex------------------->
-const nameRegex = /^[A-Za-z\s]{1,}[\.]{0,1}[A-Za-z\s]{0,}$/;
-
-const mobileRegex = /^[6-9][0-9]{9}$/;
-
-const emailRegex =
-  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-
-// <---------For Request Body Validation -------------->
-const isValidRequestBody = (value) => {
-  return Object.keys(value).length > 0;
-};
+const {validate, isValidObjectId, isFormat, isValidRequestBody} = validation
 
 const createIntern = async (req, res) => {
   try {
@@ -42,7 +20,7 @@ const createIntern = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, message: "Name is Required !!" });
-    if (!nameRegex.test(name.trim()))
+    if (!isFormat(name))
       return res
         .status(400)
         .send({
@@ -55,7 +33,7 @@ const createIntern = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, message: "Email is Required !!" });
-    if (!emailRegex.test(email.trim()))
+    if (!isFormat(email))
       return res
         .status(400)
         .send({ status: false, message: `This ${email} is invalid!!` });
@@ -72,7 +50,7 @@ const createIntern = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, message: "Mobile Number is Required !!" });
-    if (!mobileRegex.test(mobile.trim()))
+    if (!isFormat(mobile))
       return res
         .status(400)
         .send({
