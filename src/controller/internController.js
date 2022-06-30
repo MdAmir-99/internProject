@@ -10,88 +10,58 @@ const createIntern = async (req, res) => {
     const data = req.body;
     const { name, email, mobile, collegeId } = data;
 
+    // <---------Check fields filled by user or not------------>
     if (!(name && email && mobile && collegeId)) 
     return res.status(400).send({status : false, message: "Please Fill Mandatory Fields in valid Format !!"})
       
 
     // <----------Name Validation with regex and check empty || undefined name also------------>
     if (!validate(name))
-      return res
-        .status(400)
-        .send({ status: false, message: "Name is Required !!" });
+      return res.status(400).send({ status: false, message: "Name is Required !!" });
+
     if (!internName(name))
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: `This (${name}) is invalid!!`,
-        });
+      return res.status(400).send({status: false,message: `This (${name}) is invalid!!`});
 
     // <----------Email Validation with regex and check empty || undefined name also------------>
     if (!validate(email))
-      return res
-        .status(400)
-        .send({ status: false, message: "Email is Required !!" });
+      return res.status(400).send({ status: false, message: "Email is Required !!" });
+
     if (!internEmail(email))
-      return res
-        .status(400)
-        .send({ status: false, message: `This (${email}) is invalid!!` });
+      return res.status(400).send({ status: false, message: `This (${email}) is invalid!!` });
 
     // <-------------Check Email is exist in DB or not--------------->
     const isEmailExist = await internModel.findOne({ email });
     if (isEmailExist != null)
-      return res
-        .status(400)
-        .send({ status: false, message: `This (${email}) is already exist !!` });
+      return res.status(400).send({ status: false, message: `This (${email}) is already exist !!` });
 
     // <----------Mobile Validation with regex and check empty || undefined name also------------>
     if (!validateForNumber(mobile))
-      return res
-        .status(400)
-        .send({ status: false, message: "Mobile Number is Required !!" });
+      return res.status(400).send({ status: false, message: "Mobile Number is Required !!" });
     if (!internMobile(mobile))
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: `This (${mobile}) Mobile Number is Invalid !!`,
-        });
+      return res.status(400).send({status: false,message: `This (${mobile}) Mobile Number is Invalid !!`});
 
     // <-------------Check Mobile is exist in DB or not--------------->
 
     const isMobileExist = await internModel.findOne({ mobile });
     if (isMobileExist != null)
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: `This (${mobile}) Number is already Exist !!`,
-        });
+      return res.status(400).send({status: false,message: `This (${mobile}) Number is already Exist !!`});
 
     // <-------------Check collegeId Valid or not-------------->
+
     if (!validate(collegeId))
-      return res
-        .status(400)
-        .send({ status: false, message: "College id is Requird !!" });
+      return res.status(400).send({ status: false, message: "College id is Requird !!" });
     if (!isValidObjectId(collegeId))
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: `CollegeId (${collegeId}) is Invalid !!`,
-        });
+      return res.status(400).send({status: false,message: `CollegeId (${collegeId}) is Invalid !!`});
+
+
     // <------------Check College is exist in DB or not------------------>
+
     const college = await collegeModel.findById(collegeId)
     
     if(college == null) return res.status(400).send({status : false, message : `No college Found with this id (${collegeId})`})
 
     // <-----------Inserted the data in an Object and Craete the Document------------->
-    const internObj = {
-      name,
-      email,
-      mobile,
-      collegeId
-    };
+    const internObj = {name,email,mobile,collegeId};
 
     const internData = await internModel.create(internObj);
 

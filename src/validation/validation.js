@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-// <-----------------For String Validation------------------>
+
+// <-----------------For String Type input fields Validation------------------>
 const validate = (value) => {
   if (
     typeof value === null ||
@@ -11,6 +12,8 @@ const validate = (value) => {
   return true;
 };
 
+
+// <-----------------For Number Type input fields Validation------------------>
 const validateForNumber = (value) => {
   if (typeof value === null || typeof value === "undefined") return false;
   if(typeof value === "string") return false;
@@ -27,9 +30,10 @@ const isValidObjectId = (Id) => {
   return mongoose.Types.ObjectId.isValid(Id);
 };
 
-// <-------------------Regex------------------->
+// <-------------------Regex Validation using test()------------------->
 
 
+// <-------------------Regex Validation for College Model------------------>
 const clgName = (value) => {
   const collageNameRegex = /^[a-zA-Z][a-zA-Z]{1,7}$/;
   if (!collageNameRegex.test(value.trim())) return false;
@@ -49,7 +53,7 @@ const clgLogoLink = (value) => {
   return true;
 };
 
-// <-------------------Regex Validation for intern------------------>
+// <-------------------Regex Validation for intern Model------------------>
 
 const internName = (value) => {
   const nameRegex = /^[A-Za-z\s]{1,}[\.]{0,1}[A-Za-z\s]{0,}$/;
