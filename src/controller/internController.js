@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const internModel = require("../model/internModel");
+const collegeModel = require("../model/collegeModel");
 
 // <-----------------For String Validation------------------>
 const validate = (value) => {
@@ -29,7 +30,7 @@ const isValidRequestBody = (value) => {
 const createIntern = async (req, res) => {
   try {
     const data = req.body;
-    const { name, email, mobile, collegeId, isDeleted } = data;
+    const { name, email, mobile, collegeId } = data;
 
     if (!isValidRequestBody(data))
       return res
@@ -102,14 +103,17 @@ const createIntern = async (req, res) => {
           status: false,
           message: `CollegeId '${collegeId}' is Invalid !!`,
         });
+    // <------------Check College is exist in DB or not------------------>
+    const college = await collegeModel.findById(collegeId)
+    
+    if(college == null) return res.status(400).send({status : false, message : `No college Found with this id '${collegeId}'`})
 
     // <-----------Inserted the data in an Object and Craete the Document------------->
     const internObj = {
       name,
       email,
       mobile,
-      collegeId,
-      isDeleted: isDeleted ? true : false,
+      collegeId
     };
 
     const internData = await internModel.create(internObj);

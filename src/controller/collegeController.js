@@ -24,7 +24,7 @@ const isValidRequestBody = (value) => {
 const createCollege = async (req, res) => {
   try {
     let data = req.body;
-    const { name, fullName, logoLink, isDeleted } = data;
+    const { name, fullName, logoLink } = data;
 
     if (!isValidRequestBody(data)) {
       return res
@@ -93,7 +93,6 @@ const createCollege = async (req, res) => {
       name,
       fullName,
       logoLink,
-      isDeleted: isDeleted ? true : false,
     };
 
     const collegeCreate = await collegeModel.create(collegeDetails);
@@ -142,10 +141,9 @@ const getCollegeDetails = async (req, res) => {
     collegeDetaisObj["logoLink"] = collegeName.logoLink;
 
     // <----------Find All the Interns of the find CollegeName------------->
-
-    const internDetails = await internModel.find({
-      collegeId: collegeName._id,
-    });
+    let error = {message : `No Intern Found With this College '${name}' !!`} // For No inter in college.
+    const internDetails = await internModel.find({collegeId: collegeName._id});
+    if(internDetails.length == 0) collegeDetaisObj["interns"] = internDetails.push(error);
     collegeDetaisObj["interns"] = internDetails;
 
     return res.status(200).send({ status: true, data: collegeDetaisObj });
