@@ -67,7 +67,7 @@ const createCollege = async (req, res) => {
 const getCollegeDetails = async (req, res) => {
   try {
     const data = req.query;
-    let  name  = data.name;
+    let  name  = data.collegeName;
     if (!isValidRequestBody(data))
       return res.status(400).send({ status: false, message: "Please Fill the data in query !!" });
 
