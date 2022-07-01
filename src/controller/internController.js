@@ -8,7 +8,7 @@ const { validate, validateForNumber,isValidObjectId, internName, internMobile, i
 const createIntern = async (req, res) => {
   try {
     const data = req.body;
-    const { name, email, mobile, collegeId } = data;
+    const { name, email, mobile, collegeName } = data;
 
     // <---------Check fields filled by user or not------------>
     if (!(name && email && mobile && collegeId)) 
@@ -46,19 +46,16 @@ const createIntern = async (req, res) => {
     if (isMobileExist != null)
       return res.status(400).send({status: false,message: `This (${mobile}) Number is already Exist !!`});
 
-    // <-------------Check collegeId Valid or not-------------->
+     // <-------------Check CollegeName Valid or not-------------->
 
-    if (!validate(collegeId))
-      return res.status(400).send({ status: false, message: "College id is Requird !!" });
-    if (!isValidObjectId(collegeId))
-      return res.status(400).send({status: false,message: `CollegeId (${collegeId}) is Invalid !!`});
+    if (!validate(collegeName))
+      return res.status(400).send({ status: false, message: "Please Filled the College Name field !!" });
 
+      // <------------Check College is exist in DB or not------------------>
 
-    // <------------Check College is exist in DB or not------------------>
-
-    const college = await collegeModel.findById(collegeId)
-    
-    if(college == null) return res.status(400).send({status : false, message : `No college Found with this id (${collegeId})`})
+      const isCollegeExist = await collegeModel.findOne({name: collegeName})
+      if(isCollegeExist == null) return res.status(400).send({status:false, message:`Sorry No College Found with this name (${collegeName}) !!`})
+      let collegeId = isCollegeExist['_id'];
 
     // <-----------Inserted the data in an Object and Craete the Document------------->
     const internObj = {name,email,mobile,collegeId};
