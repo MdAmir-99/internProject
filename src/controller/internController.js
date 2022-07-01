@@ -11,7 +11,7 @@ const createIntern = async (req, res) => {
     const { name, email, mobile, collegeName } = data;
 
     // <---------Check fields filled by user or not------------>
-    if (!(name && email && mobile && collegeId)) 
+    if (!(name && email && mobile && collegeName)) 
     return res.status(400).send({status : false, message: "Please Fill Mandatory Fields in valid Format !!"})
       
 
